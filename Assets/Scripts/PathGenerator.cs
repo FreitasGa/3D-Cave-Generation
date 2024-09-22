@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
@@ -5,41 +6,41 @@ using UnityEngine;
 
 public class PathGenerator : MonoBehaviour
 {
-    [SerializeField]
-    private GameObject waypoints;
+    public GameObject nodes;
     
-    [SerializeField]
-    private GameObject start;
-    
-    [SerializeField]
     [Range(0.05f, 0.95f)]
-    private float weight;
-    
-    [SerializeField]
-    [Range(1, 30)]
-    private int multiplier = 5;
-    
-    private List<GameObject> _edges = new();
-    private List<GameObject> _waypoints = new();
-    private List<List<GameObject>> _waypointEdges = new();
-    
-    private List<HashSet<Vector3>> _paths = new();
-    
-    private void Start()
-    {
-        _edges = start.GetComponent<Linker>().edges;
+    public float weight;
 
-        foreach (Transform child in waypoints.transform)
+    [Range(1, 30)] 
+    public int spacer;
+    
+    public bool autoUpdate;
+    
+    private List<GameObject> _waypoints = new();
+    private List<List<GameObject>> _edges = new();
+    private List<HashSet<Vector3>> _paths = new();
+
+    private void Awake()
+    {
+        var waypoints = new List<GameObject>();
+        
+        foreach (Transform child in nodes.transform)
         {
-            var linker = child.GetComponent<Linker>();
-            
-            _waypoints.Add(child.GameObject());
-            _waypointEdges.Add(linker.edges);
+            waypoints.Add(child.GameObject());
         }
         
-        GeneratePath();
+        var edges = new List<List<GameObject>>();
+        
+        foreach (var waypoint in waypoints)
+        {
+            var links = waypoint.GetComponent<Linker>().edges;
+            edges.Add(links);
+        }
+        
+        _waypoints = waypoints;
+        _edges = edges;
     }
-    
+
     private void OnDrawGizmos()
     {
         foreach (var path in _paths)
@@ -48,6 +49,8 @@ public class PathGenerator : MonoBehaviour
             
             foreach (var current in path.Skip(1))
             {
+                Gizmos.color = Color.blue;
+                Gizmos.DrawSphere(current, 0.5f);
                 Gizmos.color = Color.yellow;
                 Gizmos.DrawLine(previous, current);
                 previous = current;
@@ -55,25 +58,21 @@ public class PathGenerator : MonoBehaviour
         }
     }
 
-    private void GeneratePath()
+    public void GeneratePath()
     {
-        foreach (var edge in _edges)
-        {
-            var path = WeightedRandomWalk.Generate(start.transform.position, edge.transform.position, weight,
-                multiplier);
-            _paths.Add(path);
-        }
-
+        var paths = new List<HashSet<Vector3>>();
+        
         foreach (var waypoint in _waypoints)
         {
-            var edges = _waypointEdges[_waypoints.IndexOf(waypoint)];
-
+            var edges = _edges[_waypoints.IndexOf(waypoint)];
+            
             foreach (var edge in edges)
             {
-                var path = WeightedRandomWalk.Generate(waypoint.transform.position, edge.transform.position, weight,
-                    multiplier);
-                _paths.Add(path);
+                var path = WeightedRandomWalk.Generate(waypoint.transform.position, edge.transform.position, weight, spacer);
+                paths.Add(path);
             }
         }
+        
+        _paths = paths;
     }
 }
