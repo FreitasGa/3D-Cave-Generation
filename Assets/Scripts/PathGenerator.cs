@@ -1,14 +1,15 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PathGenerator : MonoBehaviour
 {
     [SerializeField]
-    private Transform start;
+    private GameObject waypoints;
     
     [SerializeField]
-    private Transform waypoints;
+    private GameObject start;
     
     [SerializeField]
     [Range(0.05f, 0.95f)]
@@ -18,20 +19,60 @@ public class PathGenerator : MonoBehaviour
     [Range(1, 30)]
     private int multiplier = 5;
     
-    private void OnDrawGizmos()
+    private List<GameObject> _edges = new();
+    private List<GameObject> _waypoints = new();
+    private List<List<GameObject>> _waypointEdges = new();
+    
+    private List<HashSet<Vector3>> _paths = new();
+    
+    private void Start()
     {
-        if (start == null || waypoints == null || waypoints.childCount == 0)
+        _edges = start.GetComponent<Linker>().edges;
+
+        foreach (Transform child in waypoints.transform)
         {
-            return;
+            var linker = child.GetComponent<Linker>();
+            
+            _waypoints.Add(child.GameObject());
+            _waypointEdges.Add(linker.edges);
         }
         
-        foreach (Transform waypoint in waypoints)
+        GeneratePath();
+    }
+    
+    private void OnDrawGizmos()
+    {
+        foreach (var path in _paths)
         {
-            var path = WeightedRandomWalk.Generate(start.position, waypoint.position, weight, multiplier);
+            var previous = path.First();
             
-            foreach (var point in path)
+            foreach (var current in path.Skip(1))
             {
-                Gizmos.DrawSphere(point, 5f);
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawLine(previous, current);
+                previous = current;
+            }
+        }
+    }
+
+    private void GeneratePath()
+    {
+        foreach (var edge in _edges)
+        {
+            var path = WeightedRandomWalk.Generate(start.transform.position, edge.transform.position, weight,
+                multiplier);
+            _paths.Add(path);
+        }
+
+        foreach (var waypoint in _waypoints)
+        {
+            var edges = _waypointEdges[_waypoints.IndexOf(waypoint)];
+
+            foreach (var edge in edges)
+            {
+                var path = WeightedRandomWalk.Generate(waypoint.transform.position, edge.transform.position, weight,
+                    multiplier);
+                _paths.Add(path);
             }
         }
     }
