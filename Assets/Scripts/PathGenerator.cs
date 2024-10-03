@@ -1,78 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class PathGenerator : MonoBehaviour
+public static class PathGenerator
 {
-    public GameObject nodes;
-    
-    [Range(0.05f, 0.95f)]
-    public float weight;
-
-    [Range(1, 30)] 
-    public int spacer;
-    
-    public bool autoUpdate;
-    
-    private List<GameObject> _waypoints = new();
-    private List<List<GameObject>> _edges = new();
-    private List<HashSet<Vector3>> _paths = new();
-
-    private void Awake()
+    public static List<List<Vector3>> Generate(Graph graph, float weight, int spacer)
     {
-        var waypoints = new List<GameObject>();
+        var paths = new List<List<Vector3>>();
         
-        foreach (Transform child in nodes.transform)
+        foreach (var point in graph.Points)
         {
-            waypoints.Add(child.GameObject());
-        }
-        
-        var edges = new List<List<GameObject>>();
-        
-        foreach (var waypoint in waypoints)
-        {
-            var links = waypoint.GetComponent<Linker>().edges;
-            edges.Add(links);
-        }
-        
-        _waypoints = waypoints;
-        _edges = edges;
-    }
-
-    private void OnDrawGizmos()
-    {
-        foreach (var path in _paths)
-        {
-            var previous = path.First();
-            
-            foreach (var current in path.Skip(1))
-            {
-                Gizmos.color = Color.blue;
-                Gizmos.DrawSphere(current, 0.5f);
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawLine(previous, current);
-                previous = current;
-            }
-        }
-    }
-
-    public void GeneratePath()
-    {
-        var paths = new List<HashSet<Vector3>>();
-        
-        foreach (var waypoint in _waypoints)
-        {
-            var edges = _edges[_waypoints.IndexOf(waypoint)];
+            var edges = point.Edges;
             
             foreach (var edge in edges)
             {
-                var path = WeightedRandomWalk.Generate(waypoint.transform.position, edge.transform.position, weight, spacer);
+                var path = WeightedRandomWalk.Generate(point.Position, edge.Position, weight, spacer);
                 paths.Add(path);
             }
         }
         
-        _paths = paths;
+        return paths;
     }
 }

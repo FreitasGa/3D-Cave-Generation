@@ -3,14 +3,14 @@ using UnityEngine;
 
 public static class WeightedRandomWalk
 {
-    public static HashSet<Vector3> Generate(Vector3 start, Vector3 end, float weight, int multiplier)
+    public static List<Vector3> Generate(Vector3 start, Vector3 end, float weight, int spacer)
     {
-        var path = new HashSet<Vector3> { start };
+        var path = new List<Vector3> { start };
         var current = start;
         
-        while (Vector3.Distance(current, end) > multiplier)
+        while (Vector3.Distance(current, end) > spacer)
         {
-            var next = current + WeightedRandomMove(end - current, weight, multiplier);
+            var next = current + WeightedRandomMove(end - current, weight, spacer);
             path.Add(next);
             
             current = next;
@@ -19,13 +19,13 @@ public static class WeightedRandomWalk
         return path;
     }
     
-    private static Vector3 WeightedRandomMove(Vector3 direction, float weight, int multiplier)
+    private static Vector3 WeightedRandomMove(Vector3 direction, float weight, int spacer)
     {
         var random = Random.Range(0f, 1f);
         
         if (random < weight)
         {
-            return direction.normalized * multiplier;
+            return direction.normalized * spacer;
         }
         
         var randomDirection = Random.Range(0, 6);
@@ -39,6 +39,6 @@ public static class WeightedRandomWalk
             4 => Vector3.forward,
             5 => Vector3.back,
             _ => Vector3.zero
-        } * multiplier;
+        } * spacer;
     }
 }
