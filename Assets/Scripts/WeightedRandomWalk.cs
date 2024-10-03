@@ -8,18 +8,23 @@ public static class WeightedRandomWalk
         var path = new List<Vector3> { start };
         var current = start;
         
+        var lastMove = Vector3.zero;
+        
         while (Vector3.Distance(current, end) > spacer)
         {
-            var next = current + WeightedRandomMove(end - current, weight, spacer);
+            var move = WeightedRandomMove(end - current, weight, spacer, lastMove);
+
+            var next = current + move;
             path.Add(next);
             
             current = next;
+            lastMove = move;
         }
         
         return path;
     }
     
-    private static Vector3 WeightedRandomMove(Vector3 direction, float weight, int spacer)
+    private static Vector3 WeightedRandomMove(Vector3 direction, float weight, int spacer, Vector3 lastMove)
     {
         var random = Random.Range(0f, 1f);
         
