@@ -7,18 +7,15 @@ using UnityEngine;
 [RequireComponent(typeof(MeshFilter))]
 public class CaveGenerator : MonoBehaviour
 {
-    [HideInInspector]
-    public Graph Graph;
+    private Graph _graph;
 
-    [HideInInspector] 
-    public List<List<Vector3>> Paths = new ();
+    private List<List<Vector3>> _paths = new ();
 
-    [HideInInspector] 
-    public Mesh mesh;
+    private Mesh _mesh;
     
     public GameObject nodes;
     
-    [Range(0.05f, 0.95f)]
+    [Range(.1f, 1f)]
     public float weight;
 
     [Range(1, 30)] 
@@ -35,33 +32,45 @@ public class CaveGenerator : MonoBehaviour
     
     private void OnDrawGizmos()
     {
-        foreach (var path in Paths)
+        foreach (var path in _paths)
         {
-            var previous = path.First();
-            
-            Gizmos.color = Color.blue;
-            Gizmos.DrawSphere(previous, 0.5f);
-            
-            foreach (var current in path.Skip(1))
+            for (var i = 0; i < path.Count; i++)
             {
+                var current = path[i];
+                var next = path[(i + 1) % path.Count];
+                
                 Gizmos.color = Color.blue;
+                
+                if (i == 0 || i == path.Count - 1)
+                {
+                    Gizmos.color = Color.green;
+                }
+                
                 Gizmos.DrawSphere(current, 0.5f);
                 
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawLine(previous, current);
-                
-                previous = current;
+                if (i < path.Count - 1)
+                {
+                    Gizmos.color = Color.yellow;
+                    Gizmos.DrawLine(current, next);
+                }
             }
         }
 
-        // foreach (var path in Paths)
+        // foreach (var path in _paths)
         // {
+        //     var lastRotation = Quaternion.identity;
+        //     
         //     for (int i = 0; i < path.Count; i++)
         //     {
         //         var current = path[i];
         //         var next = path[(i + 1) % path.Count];
         //         
         //         var rotation = Quaternion.LookRotation(next - current);
+        //         
+        //         if (i == path.Count - 1)
+        //         {
+        //             rotation = lastRotation;
+        //         }
         //         
         //         for (var j = 0; j < segments; j++)
         //         {
@@ -90,10 +99,12 @@ public class CaveGenerator : MonoBehaviour
 
     public void Load()
     {
-        mesh = new Mesh();
-        mesh.name = "Cave";
-        
-        GetComponent<MeshFilter>().sharedMesh = mesh;
+        _mesh = new Mesh
+        {
+            name = "Cave"
+        };
+
+        GetComponent<MeshFilter>().sharedMesh = _mesh;
         
         var waypoints = new List<GameObject>();
         var points = new List<Point>();
@@ -122,30 +133,30 @@ public class CaveGenerator : MonoBehaviour
             }
         }
         
-        Graph = new Graph(points);
+        _graph = new Graph(points);
     }
     
     public void GeneratePath()
     {
-        Paths = PathGenerator.Generate(Graph, weight, spacer);
+        _paths = PathGenerator.Generate(_graph, weight, spacer);
     }
     
     public void ClearPath()
     {
-        Paths.Clear();
+        _paths.Clear();
     }
 
     public void GenerateMesh()
     {
-        var meshData = MeshGenerator.Generate(Paths, segments, radius);
+        var meshData = MeshGenerator.Generate(_paths, segments, radius);
         
-        mesh.SetVertices(meshData.Vertices);
-        mesh.SetTriangles(meshData.Triangles, 0);
-        mesh.RecalculateNormals();
+        _mesh.SetVertices(meshData.Vertices);
+        _mesh.SetTriangles(meshData.Triangles, 0);
+        _mesh.RecalculateNormals();
     }
     
     public void ClearMesh()
     {
-        mesh.Clear();
+        _mesh.Clear();
     }
 }
