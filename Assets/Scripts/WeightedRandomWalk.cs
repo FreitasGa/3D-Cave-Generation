@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public static class WeightedRandomWalk
 {
@@ -8,42 +11,96 @@ public static class WeightedRandomWalk
         var path = new List<Vector3> { start };
         var current = start;
         
-        var lastMove = Vector3.zero;
-        
         while (Vector3.Distance(current, end) > spacer)
         {
-            var move = WeightedRandomMove(end - current, weight, spacer, lastMove);
-
-            var next = current + move;
+            var next = current + WeightedRandomMove(end - current, weight, spacer);;
             path.Add(next);
             
             current = next;
-            lastMove = move;
+        }
+        
+        for (var i = 0; i < path.Count; i++)
+        {
+            current = path[i];
+            
+            for (var j = i + 1; j < path.Count; j++)
+            {
+                var next = path[j];
+                
+                if (current == next)
+                {
+                    path.RemoveRange(i, j - i);
+                }
+            }
+        }
+        
+        for (var i = 0; i < path.Count; i++)
+        {
+            current = path[i];
+            
+            for (var j = i + 1; j < path.Count; j++)
+            {
+                var next = path[j];
+                
+                if (current == next)
+                {
+                    path.RemoveRange(i, j - i);
+                }
+            }
         }
         
         return path;
     }
-    
-    private static Vector3 WeightedRandomMove(Vector3 direction, float weight, int spacer, Vector3 lastMove)
+
+    private static Vector3 WeightedRandomMove(Vector3 direction, float weight, int spacer)
     {
-        var random = Random.Range(0f, 1f);
-        
-        if (random < weight)
+        var moves = new List<Vector3>()
         {
-            return direction.normalized * spacer;
+            Vector3.up,
+            Vector3.down,
+            Vector3.left,
+            Vector3.right,
+            Vector3.forward,
+            Vector3.back
+        };
+        
+        var affinities = new List<float>(moves.Count);
+        
+        foreach (var move in moves)
+        {
+            var affinity = Vector3.Dot(direction.normalized, move) / 2;
+            affinities.Add(affinity);
         }
         
-        var randomDirection = Random.Range(0, 6);
+        var probabilities = new List<float>(moves.Count);
         
-        return randomDirection switch
+        for (var i = 0; i < moves.Count; i++)
         {
-            0 => Vector3.up,
-            1 => Vector3.down,
-            2 => Vector3.left,
-            3 => Vector3.right,
-            4 => Vector3.forward,
-            5 => Vector3.back,
-            _ => Vector3.zero
-        } * spacer;
+            var affinity = affinities[i];
+            var probability = 0.5f + (affinity * weight);
+            probabilities.Add(probability);
+        }
+        
+        var probabilitySum = probabilities.Sum();
+        
+        for (var i = 0; i < probabilities.Count; i++)
+        {
+            probabilities[i] /= probabilitySum;
+        }
+
+        var probabilityMax = 0f;
+        var random = Random.value;
+        
+        for (var i = 0; i < probabilities.Count; i++)
+        {
+            probabilityMax += probabilities[i];
+            
+            if (random <= probabilityMax)
+            {
+                return moves[i] * spacer;
+            }
+        }
+        
+        return Vector3.zero;
     }
 }
