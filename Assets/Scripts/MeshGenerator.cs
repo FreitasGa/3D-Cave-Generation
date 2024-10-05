@@ -11,11 +11,18 @@ public static class MeshGenerator
 
         foreach (var path in paths)
         {
+            var lastRotation = Quaternion.identity;
+            
             for (int i = 0; i < path.Count; i++)
             {
                 var current = path[i];
                 var next = path[(i + 1) % path.Count];
                 var rotation = Quaternion.LookRotation(next - current);
+                
+                if (i == path.Count - 1)
+                {
+                    rotation = lastRotation;
+                }
 
                 for (var j = 0; j < segments; j++)
                 {
@@ -28,6 +35,8 @@ public static class MeshGenerator
 
                     vertices.Add(current + point);
                 }
+                
+                lastRotation = rotation;
             }
             
             for (int i = 0; i < path.Count - 1; i++)
