@@ -9,27 +9,27 @@ public class CaveGenerator : MonoBehaviour
 {
     private Graph _graph;
 
-    private List<List<Vector3>> _paths = new ();
+    private List<List<Vector3>> _paths = new();
 
     private Mesh _mesh;
-    
+
     public GameObject nodes;
-    
+
     [Range(.1f, 1f)]
     public float weight;
 
-    [Range(1, 30)] 
+    [Range(1, 30)]
     public int spacer;
-    
+
     [Range(1f, 5f)]
     public float radius;
-    
+
     [Range(3, 36)]
     public int segments;
-    
+
     public bool autoUpdate;
     public bool generateMesh;
-    
+
     private void OnDrawGizmos()
     {
         foreach (var path in _paths)
@@ -38,16 +38,16 @@ public class CaveGenerator : MonoBehaviour
             {
                 var current = path[i];
                 var next = path[(i + 1) % path.Count];
-                
+
                 Gizmos.color = Color.blue;
-                
+
                 if (i == 0 || i == path.Count - 1)
                 {
                     Gizmos.color = Color.green;
                 }
-                
+
                 Gizmos.DrawSphere(current, 0.2f);
-                
+
                 if (i < path.Count - 1)
                 {
                     Gizmos.color = Color.yellow;
@@ -105,42 +105,42 @@ public class CaveGenerator : MonoBehaviour
         };
 
         GetComponent<MeshFilter>().sharedMesh = _mesh;
-        
+
         var waypoints = new List<GameObject>();
         var points = new List<Point>();
-        
+
         foreach (Transform child in nodes.transform)
         {
             waypoints.Add(child.GameObject());
-            
+
             var point = new Point(child.position);
             points.Add(point);
         }
-        
+
         for (var i = 0; i < waypoints.Count; i++)
         {
             var waypoint = waypoints[i];
             var point = points[i];
-            
+
             var edges = waypoint.GetComponent<Linker>().edges;
-            
+
             foreach (var edge in edges)
             {
                 var index = waypoints.IndexOf(edge);
                 var edgePoint = points[index];
-                
+
                 point.Edges.Add(edgePoint);
             }
         }
-        
+
         _graph = new Graph(points);
     }
-    
+
     public void GeneratePath()
     {
         _paths = PathGenerator.Generate(_graph, weight, spacer);
     }
-    
+
     public void ClearPath()
     {
         _paths.Clear();
@@ -149,12 +149,12 @@ public class CaveGenerator : MonoBehaviour
     public void GenerateMesh()
     {
         var meshData = MeshGenerator.Generate(_paths, segments, radius);
-        
+
         _mesh.SetVertices(meshData.Vertices);
         _mesh.SetTriangles(meshData.Triangles, 0);
         _mesh.RecalculateNormals();
     }
-    
+
     public void ClearMesh()
     {
         _mesh.Clear();

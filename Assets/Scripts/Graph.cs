@@ -10,17 +10,17 @@ public class Graph
     {
         this.Points = points;
     }
-    
+
     public void AddPoint(Point point)
     {
         Points.Add(point);
     }
-    
+
     public void RemovePoint(Point point)
     {
         Points.Remove(point);
     }
-    
+
     public void MovePoint(int index, Vector3 position)
     {
         Points[index].Position = position;

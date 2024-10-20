@@ -6,7 +6,7 @@ using UnityEngine;
 public class CaveGeneratorEditor : Editor
 {
     private CaveGenerator _generator;
-    
+
     public override void OnInspectorGUI()
     {
         if (DrawDefaultInspector())
@@ -14,7 +14,7 @@ public class CaveGeneratorEditor : Editor
             if (_generator.autoUpdate)
             {
                 _generator.GeneratePath();
-                
+
                 if (_generator.generateMesh)
                 {
                     _generator.GenerateMesh();
@@ -23,15 +23,15 @@ public class CaveGeneratorEditor : Editor
         }
 
         if (GUILayout.Button("Generate"))
-        {   
+        {
             _generator.GeneratePath();
-            
+
             if (_generator.generateMesh)
             {
                 _generator.GenerateMesh();
             }
         }
-        
+
         if (GUILayout.Button("Clear"))
         {
             _generator.ClearPath();

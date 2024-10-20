@@ -7,15 +7,15 @@ public static class SimpleRandomWalk
     {
         var path = new HashSet<Vector3> { start };
         var current = start;
-        
+
         for (var i = 0; i < steps; i++)
         {
             var next = current + RandomMove();
             path.Add(next);
-            
+
             current = next;
         }
-        
+
         return path;
     }
 
