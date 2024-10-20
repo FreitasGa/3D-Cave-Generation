@@ -61,14 +61,34 @@ public static class WeightedRandomWalk
             Vector3.left,
             Vector3.right,
             Vector3.forward,
-            Vector3.back
+            Vector3.back,
+            Vector3.up + Vector3.left,
+            Vector3.up + Vector3.right,
+            Vector3.up + Vector3.forward,
+            Vector3.up + Vector3.back,
+            Vector3.down + Vector3.left,
+            Vector3.down + Vector3.right,
+            Vector3.down + Vector3.forward,
+            Vector3.down + Vector3.back,
+            Vector3.left + Vector3.forward,
+            Vector3.left + Vector3.back,
+            Vector3.right + Vector3.forward,
+            Vector3.right + Vector3.back,
+            Vector3.up + Vector3.left + Vector3.forward,
+            Vector3.up + Vector3.left + Vector3.back,
+            Vector3.up + Vector3.right + Vector3.forward,
+            Vector3.up + Vector3.right + Vector3.back,
+            Vector3.down + Vector3.left + Vector3.forward,
+            Vector3.down + Vector3.left + Vector3.back,
+            Vector3.down + Vector3.right + Vector3.forward,
+            Vector3.down + Vector3.right + Vector3.back
         };
         
         var affinities = new List<float>(moves.Count);
         
         foreach (var move in moves)
         {
-            var affinity = Vector3.Dot(direction.normalized, move) / 2;
+            var affinity = Vector3.Dot(direction.normalized, move.normalized);
             affinities.Add(affinity);
         }
         
@@ -77,7 +97,7 @@ public static class WeightedRandomWalk
         for (var i = 0; i < moves.Count; i++)
         {
             var affinity = affinities[i];
-            var probability = 0.5f + (affinity * weight);
+            var probability = Mathf.Exp(affinity * weight * 15);
             probabilities.Add(probability);
         }
         

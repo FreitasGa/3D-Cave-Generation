@@ -46,7 +46,7 @@ public class CaveGenerator : MonoBehaviour
                     Gizmos.color = Color.green;
                 }
                 
-                Gizmos.DrawSphere(current, 0.5f);
+                Gizmos.DrawSphere(current, 0.2f);
                 
                 if (i < path.Count - 1)
                 {

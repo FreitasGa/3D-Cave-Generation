@@ -187,10 +187,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66ddf2a650358d3428ad4e0fb23f44d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mesh: {fileID: 1810153575}
   nodes: {fileID: 210423545}
-  weight: 1
-  spacer: 5
+  weight: 0.248
+  spacer: 1
   radius: 1
   segments: 6
   autoUpdate: 1
@@ -259,7 +258,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 556658192}
-  m_Mesh: {fileID: 1810153575}
+  m_Mesh: {fileID: 2113378768}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -368,7 +367,7 @@ GameObject:
   - component: {fileID: 722684468}
   - component: {fileID: 722684471}
   m_Layer: 0
-  m_Name: Sphere (1)
+  m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -778,7 +777,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   edges:
   - {fileID: 722684466}
---- !u!43 &1810153575
+--- !u!43 &2113378768
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
