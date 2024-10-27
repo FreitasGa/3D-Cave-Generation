@@ -6,14 +6,14 @@ using Random = UnityEngine.Random;
 
 public static class WeightedRandomWalk
 {
-    public static List<Vector3> Generate(Vector3 start, Vector3 end, float weight, int spacer)
+    public static List<Vector3> Generate(Vector3 start, Vector3 end, float weight, int k, int spacer)
     {
         var path = new List<Vector3> { start };
         var current = start;
 
         while (Vector3.Distance(current, end) > spacer)
         {
-            var next = current + WeightedRandomMove(end - current, weight, spacer);
+            var next = current + WeightedRandomMove(end - current, weight, k, spacer);
             path.Add(next);
 
             current = next;
@@ -52,7 +52,7 @@ public static class WeightedRandomWalk
         return path;
     }
 
-    private static Vector3 WeightedRandomMove(Vector3 direction, float weight, int spacer)
+    private static Vector3 WeightedRandomMove(Vector3 direction, float weight, int k, int spacer)
     {
         var moves = new List<Vector3>()
         {
@@ -97,7 +97,7 @@ public static class WeightedRandomWalk
         for (var i = 0; i < moves.Count; i++)
         {
             var affinity = affinities[i];
-            var probability = Mathf.Exp(affinity * weight * 15);
+            var probability = Mathf.Exp(affinity * weight * k);
             probabilities.Add(probability);
         }
 

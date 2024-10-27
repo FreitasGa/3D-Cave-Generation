@@ -3,7 +3,7 @@ using UnityEngine;
 
 public static class PathGenerator
 {
-    public static List<List<Vector3>> Generate(Graph graph, float weight, int spacer)
+    public static List<List<Vector3>> Generate(Graph graph, float weight, int k, int spacer)
     {
         var paths = new List<List<Vector3>>();
 
@@ -13,7 +13,7 @@ public static class PathGenerator
 
             foreach (var edge in edges)
             {
-                var path = WeightedRandomWalk.Generate(point.Position, edge.Position, weight, spacer);
+                var path = WeightedRandomWalk.Generate(point.Position, edge.Position, weight, k, spacer);
                 paths.Add(path);
             }
         }

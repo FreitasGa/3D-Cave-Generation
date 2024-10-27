@@ -13,7 +13,7 @@ public static class MeshGenerator
         {
             var lastRotation = Quaternion.identity;
 
-            for (int i = 0; i < path.Count; i++)
+            for (var i = 0; i < path.Count; i++)
             {
                 var current = path[i];
                 var next = path[(i + 1) % path.Count];
@@ -39,7 +39,7 @@ public static class MeshGenerator
                 lastRotation = rotation;
             }
 
-            for (int i = 0; i < path.Count - 1; i++)
+            for (var i = 0; i < path.Count - 1; i++)
             {
                 for (var j = 0; j < segments; j++)
                 {

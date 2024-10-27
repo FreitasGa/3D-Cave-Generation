@@ -19,6 +19,9 @@ public class CaveGenerator : MonoBehaviour
     public float weight;
 
     [Range(1, 30)]
+    public int k;
+
+    [Range(1, 30)]
     public int spacer;
 
     [Range(1f, 5f)]
@@ -81,16 +84,7 @@ public class CaveGenerator : MonoBehaviour
         //             var point = new Vector3(x, y) * radius;
         //             point = rotation * point;
         //
-        //             Gizmos.color = j switch
-        //             {
-        //                 0 => Color.red,
-        //                 1 => Color.green,
-        //                 2 => Color.blue,
-        //                 3 => Color.yellow,
-        //                 4 => Color.cyan,
-        //                 5 => Color.magenta,
-        //                 _ => Color.white
-        //             };
+        //             Gizmos.color = Color.red;
         //             Gizmos.DrawSphere(current + point, 0.2f);
         //         }
         //     }
@@ -138,7 +132,7 @@ public class CaveGenerator : MonoBehaviour
 
     public void GeneratePath()
     {
-        _paths = PathGenerator.Generate(_graph, weight, spacer);
+        _paths = PathGenerator.Generate(_graph, weight, k, spacer);
     }
 
     public void ClearPath()
