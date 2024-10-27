@@ -19,6 +19,11 @@ public static class WeightedRandomWalk
             current = next;
         }
 
+        if (current != end)
+        {
+            path.Add(end);
+        }
+
         for (var i = 0; i < path.Count; i++)
         {
             current = path[i];
