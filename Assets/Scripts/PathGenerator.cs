@@ -1,23 +1,24 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public static class PathGenerator
 {
-    public static List<List<Vector3>> Generate(Graph graph, float weight, int k, int spacer)
+    public static List<Vector3> Generate(Graph graph, float weight, int k, int spacer)
     {
-        var paths = new List<List<Vector3>>();
+        var path = new List<Vector3>();
 
         foreach (var point in graph.Points)
         {
-            var edges = point.Edges;
-
-            foreach (var edge in edges)
+            foreach (var edge in point.Edges)
             {
-                var path = WeightedRandomWalk.Generate(point.Position, edge.Position, weight, k, spacer);
-                paths.Add(path);
+                var points = WeightedRandomWalk.Generate(point.Position, edge.Position, weight, k, spacer);
+                path.AddRange(points);
             }
         }
 
-        return paths;
+        path = new HashSet<Vector3>(path).ToList();
+        
+        return path;
     }
 }

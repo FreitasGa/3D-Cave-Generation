@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
@@ -9,7 +8,7 @@ public class CaveGenerator : MonoBehaviour
 {
     private Graph _graph;
 
-    private List<List<Vector3>> _paths = new();
+    private List<Vector3> _path = new();
 
     private Mesh _mesh;
 
@@ -24,7 +23,7 @@ public class CaveGenerator : MonoBehaviour
     [Range(1, 30)]
     public int spacer;
 
-    [Range(1f, 5f)]
+    [Range(.5f, 5f)]
     public float radius;
 
     [Range(3, 36)]
@@ -35,58 +34,44 @@ public class CaveGenerator : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        foreach (var path in _paths)
+        for (var i = 0; i < _path.Count; i++)
         {
-            for (var i = 0; i < path.Count; i++)
+            var current = _path[i];
+            var next = _path[(i + 1) % _path.Count];
+
+            Gizmos.color = Color.blue;
+
+            if (_graph != null && _graph.Points.Any(p => p.Position == current))
             {
-                var current = path[i];
-                var next = path[(i + 1) % path.Count];
+                Gizmos.color = Color.green;
+            }
 
-                Gizmos.color = Color.blue;
+            Gizmos.DrawSphere(current, 0.2f);
 
-                if (i == 0 || i == path.Count - 1)
-                {
-                    Gizmos.color = Color.green;
-                }
-
-                Gizmos.DrawSphere(current, 0.2f);
-
-                if (i < path.Count - 1)
-                {
-                    Gizmos.color = Color.yellow;
-                    Gizmos.DrawLine(current, next);
-                }
+            if (i < _path.Count - 1)
+            {
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawLine(current, next);
             }
         }
-
-        // foreach (var path in _paths)
+        
+        // for (var i = 0; i < _path.Count; i++)
         // {
-        //     var lastRotation = Quaternion.identity;
-        //     
-        //     for (int i = 0; i < path.Count; i++)
+        //     var current = _path[i];
+        //     var next = _path[(i + 1) % _path.Count];
+        //     var rotation = Quaternion.LookRotation(next - current);
+        //
+        //     for (var j = 0; j < segments; j++)
         //     {
-        //         var current = path[i];
-        //         var next = path[(i + 1) % path.Count];
-        //         
-        //         var rotation = Quaternion.LookRotation(next - current);
-        //         
-        //         if (i == path.Count - 1)
-        //         {
-        //             rotation = lastRotation;
-        //         }
-        //         
-        //         for (var j = 0; j < segments; j++)
-        //         {
-        //             var angle = j * Mathf.PI * 2 / segments;
-        //             var x = Mathf.Cos(angle);
-        //             var y = Mathf.Sin(angle);
+        //         var angle = j * Mathf.PI * 2 / segments;
+        //         var x = Mathf.Cos(angle);
+        //         var y = Mathf.Sin(angle);
         //
-        //             var point = new Vector3(x, y) * radius;
-        //             point = rotation * point;
+        //         var point = new Vector3(x, y) * radius;
+        //         point = rotation * point;
         //
-        //             Gizmos.color = Color.red;
-        //             Gizmos.DrawSphere(current + point, 0.2f);
-        //         }
+        //         Gizmos.color = Color.cyan;
+        //         Gizmos.DrawSphere(current + point, 0.1f);
         //     }
         // }
     }
@@ -115,34 +100,34 @@ public class CaveGenerator : MonoBehaviour
         {
             var waypoint = waypoints[i];
             var point = points[i];
-
+        
             var edges = waypoint.GetComponent<Linker>().edges;
-
+        
             foreach (var edge in edges)
             {
                 var index = waypoints.IndexOf(edge);
                 var edgePoint = points[index];
-
+        
                 point.Edges.Add(edgePoint);
             }
         }
-
+        
         _graph = new Graph(points);
     }
 
     public void GeneratePath()
     {
-        _paths = PathGenerator.Generate(_graph, weight, k, spacer);
+        _path = PathGenerator.Generate(_graph, weight, k, spacer);
     }
 
     public void ClearPath()
     {
-        _paths.Clear();
+        _path.Clear();
     }
 
     public void GenerateMesh()
     {
-        var meshData = MeshGenerator.Generate(_paths, segments, radius);
+        var meshData = MeshGenerator.Generate(_path, segments, radius);
 
         _mesh.SetVertices(meshData.Vertices);
         _mesh.SetTriangles(meshData.Triangles, 0);
