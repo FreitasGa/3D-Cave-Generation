@@ -10,10 +10,12 @@ public static class WeightedRandomWalk
     {
         var path = new List<Vector3> { start };
         var current = start;
+        
+        var moves = MovesWithHalfSteps();
 
         while (Vector3.Distance(current, end) > spacer)
         {
-            var next = current + WeightedRandomMove(end - current, weight, k, spacer);
+            var next = current + WeightedRandomMove(end - current, weight, k, spacer, moves);
             path.Add(next);
 
             current = next;
@@ -57,38 +59,32 @@ public static class WeightedRandomWalk
         return path;
     }
 
-    private static Vector3 WeightedRandomMove(Vector3 direction, float weight, int k, int spacer)
+    private static List<Vector3> MovesWithHalfSteps()
     {
-        var moves = new List<Vector3>()
-        {
-            Vector3.up,
-            Vector3.down,
-            Vector3.left,
-            Vector3.right,
-            Vector3.forward,
-            Vector3.back,
-            Vector3.up + Vector3.left,
-            Vector3.up + Vector3.right,
-            Vector3.up + Vector3.forward,
-            Vector3.up + Vector3.back,
-            Vector3.down + Vector3.left,
-            Vector3.down + Vector3.right,
-            Vector3.down + Vector3.forward,
-            Vector3.down + Vector3.back,
-            Vector3.left + Vector3.forward,
-            Vector3.left + Vector3.back,
-            Vector3.right + Vector3.forward,
-            Vector3.right + Vector3.back,
-            Vector3.up + Vector3.left + Vector3.forward,
-            Vector3.up + Vector3.left + Vector3.back,
-            Vector3.up + Vector3.right + Vector3.forward,
-            Vector3.up + Vector3.right + Vector3.back,
-            Vector3.down + Vector3.left + Vector3.forward,
-            Vector3.down + Vector3.left + Vector3.back,
-            Vector3.down + Vector3.right + Vector3.forward,
-            Vector3.down + Vector3.right + Vector3.back
-        };
+        float[] steps = { -1f, -.5f, 0f, .5f, 1f };
+        var moves = new List<Vector3>();
 
+        foreach (var x in steps)
+        {
+            foreach (var y in steps)
+            {
+                foreach (var z in steps)
+                {
+                    if (x == 0 && y == 0 && z == 0)
+                    {
+                        continue;
+                    }
+
+                    moves.Add(new Vector3(x, y, z));
+                }
+            }
+        }
+
+        return moves;
+    }
+
+    private static Vector3 WeightedRandomMove(Vector3 direction, float weight, int k, int spacer, List<Vector3> moves)
+    {
         var affinities = new List<float>(moves.Count);
 
         foreach (var move in moves)
