@@ -8,8 +8,6 @@ public class CaveGenerator : MonoBehaviour
 {
     private Graph _graph;
 
-    private List<Vector3> _path = new();
-
     private Mesh _mesh;
 
     public GameObject nodes;
@@ -34,38 +32,67 @@ public class CaveGenerator : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        for (var i = 0; i < _path.Count; i++)
+        if (_graph == null)
         {
-            var current = _path[i];
-            var next = _path[(i + 1) % _path.Count];
+            return;
+        }
 
-            Gizmos.color = Color.blue;
-
-            if (_graph != null && _graph.Points.Any(p => p.Position == current))
+        foreach (var point in _graph.Points)
+        {
+            foreach (var path in point.Paths)
             {
-                Gizmos.color = Color.green;
-            }
+                for (var i = 0; i < path.Count; i++)
+                {
+                    var current = path[i];
+                    var next = path[(i + 1) % path.Count];
 
-            Gizmos.DrawSphere(current, 0.2f);
+                    Gizmos.color = Color.blue;
 
-            if (i < _path.Count - 1)
-            {
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawLine(current, next);
+                    if (_graph != null && _graph.Points.Any(p => p.Position == current))
+                    {
+                        Gizmos.color = Color.green;
+                    }
+
+                    Gizmos.DrawSphere(current, 0.2f);
+
+                    if (i < path.Count - 1)
+                    {
+                        Gizmos.color = Color.yellow;
+                        Gizmos.DrawLine(current, next);
+                    }
+                }
             }
         }
     }
 
+    private bool ValidateLoad()
+    {
+        if (_graph == null)
+        {
+            return true;
+        }
+
+        if (nodes.transform.childCount != _graph.Points.Count)
+        {
+            return true;
+        }
+
+        if (nodes
+            .transform
+            .Cast<Transform>()
+            .Any(child => _graph.Points.All(point => point.Position != child.position)))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     public void Load()
     {
-        if (_mesh == null)
+        if (ValidateLoad() == false)
         {
-            _mesh = new Mesh
-            {
-                name = "Cave"
-            };
-
-            GetComponent<MeshFilter>().sharedMesh = _mesh;
+            return;
         }
 
         var waypoints = new List<GameObject>();
@@ -75,7 +102,7 @@ public class CaveGenerator : MonoBehaviour
         {
             waypoints.Add(child.GameObject());
 
-            var point = new Point(child.position);
+            var point = new Point(child.name, child.position);
             points.Add(point);
         }
 
@@ -96,21 +123,24 @@ public class CaveGenerator : MonoBehaviour
         }
 
         _graph = new Graph(points);
+        _mesh = new Mesh { name = "Cave" };
+
+        GetComponent<MeshFilter>().sharedMesh = _mesh;
     }
 
     public void GeneratePath()
     {
-        _path = PathGenerator.Generate(_graph, weight, k, spacer);
+        PathGenerator.Generate(_graph, weight, k, spacer);
     }
 
     public void ClearPath()
     {
-        _path.Clear();
+        _graph.Points.ForEach(point => point.Paths.Clear());
     }
 
     public void GenerateMesh()
     {
-        var meshData = MeshGenerator.Generate(_path, segments, radius);
+        var meshData = MeshGenerator.Generate(_graph, segments, radius);
 
         _mesh.SetVertices(meshData.Vertices);
         _mesh.SetTriangles(meshData.Triangles, 0);
