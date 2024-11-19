@@ -10,7 +10,7 @@ public static class WeightedRandomWalk
     {
         var path = new List<Vector3> { start };
         var current = start;
-        
+
         var moves = MovesWithHalfSteps();
 
         while (Vector3.Distance(current, end) > spacer)

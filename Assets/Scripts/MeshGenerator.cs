@@ -7,7 +7,7 @@ public static class MeshGenerator
     {
         var vertices = new List<Vector3>();
         var triangles = new List<int>();
-        
+
         for (var i = 0; i < path.Count; i++)
         {
             var current = path[i];

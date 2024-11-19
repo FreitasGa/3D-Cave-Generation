@@ -23,7 +23,7 @@ public class CaveGenerator : MonoBehaviour
     [Range(1, 30)]
     public int spacer;
 
-    [Range(.5f, 5f)]
+    [Range(1f, 10f)]
     public float radius;
 
     [Range(3, 36)]
@@ -54,36 +54,19 @@ public class CaveGenerator : MonoBehaviour
                 Gizmos.DrawLine(current, next);
             }
         }
-        
-        // for (var i = 0; i < _path.Count; i++)
-        // {
-        //     var current = _path[i];
-        //     var next = _path[(i + 1) % _path.Count];
-        //     var rotation = Quaternion.LookRotation(next - current);
-        //
-        //     for (var j = 0; j < segments; j++)
-        //     {
-        //         var angle = j * Mathf.PI * 2 / segments;
-        //         var x = Mathf.Cos(angle);
-        //         var y = Mathf.Sin(angle);
-        //
-        //         var point = new Vector3(x, y) * radius;
-        //         point = rotation * point;
-        //
-        //         Gizmos.color = Color.cyan;
-        //         Gizmos.DrawSphere(current + point, 0.1f);
-        //     }
-        // }
     }
 
     public void Load()
     {
-        _mesh = new Mesh
+        if (_mesh == null)
         {
-            name = "Cave"
-        };
+            _mesh = new Mesh
+            {
+                name = "Cave"
+            };
 
-        GetComponent<MeshFilter>().sharedMesh = _mesh;
+            GetComponent<MeshFilter>().sharedMesh = _mesh;
+        }
 
         var waypoints = new List<GameObject>();
         var points = new List<Point>();
@@ -100,18 +83,18 @@ public class CaveGenerator : MonoBehaviour
         {
             var waypoint = waypoints[i];
             var point = points[i];
-        
+
             var edges = waypoint.GetComponent<Linker>().edges;
-        
+
             foreach (var edge in edges)
             {
                 var index = waypoints.IndexOf(edge);
                 var edgePoint = points[index];
-        
+
                 point.Edges.Add(edgePoint);
             }
         }
-        
+
         _graph = new Graph(points);
     }
 

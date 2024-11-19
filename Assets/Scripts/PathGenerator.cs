@@ -18,7 +18,7 @@ public static class PathGenerator
         }
 
         path = new HashSet<Vector3>(path).ToList();
-        
+
         return path;
     }
 }
