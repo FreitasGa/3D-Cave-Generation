@@ -12,8 +12,8 @@ public static class PathGenerator
 
             foreach (var edge in point.Edges)
             {
-                var points = WeightedRandomWalk.Generate(point.Position, edge.Position, weight, k, spacer);
-                point.Paths.Add(points);
+                var path = WeightedRandomWalk.Generate(point.Position, edge.Position, weight, k, spacer);
+                point.Paths.Add(path);
             }
         }
     }

@@ -24,7 +24,7 @@ public class CaveGenerator : MonoBehaviour
     [Range(1f, 10f)]
     public float radius;
 
-    [Range(3, 36)]
+    [Range(6, 12)]
     public int segments;
 
     public bool autoUpdate;
@@ -45,16 +45,16 @@ public class CaveGenerator : MonoBehaviour
                 {
                     var current = path[i];
                     var next = path[(i + 1) % path.Count];
-
+        
                     Gizmos.color = Color.blue;
-
+        
                     if (_graph != null && _graph.Points.Any(p => p.Position == current))
                     {
                         Gizmos.color = Color.green;
                     }
-
-                    Gizmos.DrawSphere(current, 0.2f);
-
+        
+                    Gizmos.DrawSphere(current, 1f);
+        
                     if (i < path.Count - 1)
                     {
                         Gizmos.color = Color.yellow;
